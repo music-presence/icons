@@ -16,7 +16,6 @@ OUT = "dist"
 BUILD = "build"
 EXT = "png"
 
-PREFIX = "musicpresence"
 SIZE = 512
 
 
@@ -32,8 +31,8 @@ def prepare(c: Context):
     pathlib.Path(BUILD).mkdir(parents=True, exist_ok=False)
 
 
-def out(id, ext):
-    return f"{OUT}/{PREFIX}-{id}.{ext}"
+def out(name, ext):
+    return f"{OUT}/{name}.{ext}"
 
 
 class Inkscape:
@@ -51,15 +50,18 @@ class Inkscape:
             if "was not found in the document" in r.stderr:
                 raise Exception(r.stderr)
 
-    def export(self, svg: str, id: str, ext: str = "png") -> Promise:
-        command = f"inkscape -o {out(id, ext)} -i {id} -j -h {SIZE} {svg}"
+    def export(
+        self, svg: str, name: str, export_ids: str, ext: str = "png"
+    ) -> Promise:
+        path = out(name, ext)
+        command = f"inkscape -o {path} -i {export_ids} -j -h {SIZE} {svg}"
         promise: Promise = self.context.run(command, asynchronous=True)
         self.promises.append(promise)
         return promise
 
-    def export_all(self, svg: str, ids: list[str]) -> None:
-        for id in ids:
-            self.export(svg, id)
+    def export_all(self, svg: str, name_to_ids: dict[str, str]) -> None:
+        for name, ids in name_to_ids.items():
+            self.export(svg, name, ids)
 
 
 def to_ico(src, dir=None):
@@ -71,3 +73,19 @@ def to_ico(src, dir=None):
     image = Image.open(src)
     pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
     image.save(dest)
+
+
+def export(base_id, suffixes):
+    """Constructs a list of IDs meant to be passed to Inkscape's CLI program
+    after the -i or --export-id command line flag.
+    The last ID will dictate the bounding box of the output.
+    """
+    if len(base_id) == 0:
+        raise ValueError("the base ID cannot be empty")
+    if len(suffixes) == 0:
+        raise ValueError("there must be at least one suffix")
+    for s in suffixes:
+        if len(s) == 0:
+            raise ValueError("suffixes cannot be empty")
+    ids = [base_id + "-" + s for s in suffixes]
+    return ";".join(ids)

@@ -6,14 +6,19 @@ import os
 import base
 
 
-logos = [
-    "logo-simple-light",
-    "logo-simple-dark",
-    "logo-icon-light-tray",
-    "logo-icon-light",
-    "logo-icon-dark-tray",
-    "logo-icon-dark",
-]
+def tray(theme: str, suffixes: list[str] = []):
+    return base.export(f"logo-icon-{theme}", [*suffixes, "tray-margin"])
+
+
+themed_logos = lambda theme: {
+    f"tray-{theme}": tray(theme, ["shape"]),
+    f"tray-{theme}-active": tray(theme, ["shape-active", "overlay-active"]),
+    f"tray-{theme}-disabled": tray(theme, ["shape", "overlay-disabled"]),
+}
+logos = {
+    **themed_logos("dark"),
+    **themed_logos("light"),
+}
 
 
 @task
