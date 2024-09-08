@@ -1,2 +1,5 @@
 /.venv
 /build
+
+# inkscape backup files
+/src/*.svg.20*.svg
