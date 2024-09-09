@@ -59,3 +59,8 @@ while working on another.
 Export file names that contain either `-dark` or `-light`
 are treated as icons for the respective theme ("dark" or "light").
 File names must not start with `dark-...` or `light-...`.
+
+All icons should be exported as 512x512 PNG images
+and there must be a `size` file in the root export directory (`dist`)
+which contains the size of exported PNG images.
+All exported images must have the same size.

@@ -29,6 +29,8 @@ def clean(c: Context):
 def prepare(c: Context):
     pathlib.Path(OUT).mkdir(parents=True, exist_ok=False)
     pathlib.Path(BUILD).mkdir(parents=True, exist_ok=False)
+    with open(os.path.join(OUT, "size"), "w") as f:
+        f.write(str(SIZE))
 
 
 def out(name, ext):
