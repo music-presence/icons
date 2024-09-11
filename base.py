@@ -7,7 +7,6 @@ import pathlib
 import os
 import re
 from typing import Callable
-from contextlib import contextmanager
 
 from PIL import Image, ImageFile, ImageOps
 
@@ -107,35 +106,32 @@ class Inkscape:
         }
 
 
-@contextmanager
-def convert(
+def prepare_convert(
     image_path,
     target_directory,
     ext,
-):
+) -> tuple[ImageFile.ImageFile, str]:
     path = pathlib.Path(image_path)
     dest = os.path.join(target_directory, f"{path.stem}.{ext}")
     pathlib.Path(target_directory).mkdir(parents=True, exist_ok=True)
-
-    class Data:
-        def __init__(self, image: ImageFile.ImageFile):
-            self.image = image
-
     print(f"converting: {image_path} -> {dest}")
-    image = Image.open(image_path)
-    info = Data(image)
-    yield info
-    info.image.save(dest)
+    return (Image.open(image_path), dest)
 
 
 def to_ico(image_path, target_directory):
-    with convert(image_path, target_directory, "ico"):
-        pass
+    image, out = prepare_convert(image_path, target_directory, "ico")
+    image.save(out)
+
+
+def to_icns(image_path, target_directory):
+    image, out = prepare_convert(image_path, target_directory, "icns")
+    image.save(out, format="ICNS")
 
 
 def to_nsis_bmp(image_path, target_directory):
-    with convert(image_path, target_directory, "bmp") as out:
-        out.image = out.image.convert("RGB")
+    image, out = prepare_convert(image_path, target_directory, "bmp")
+    image = image.convert("RGB")
+    image.save(out)
 
 
 def export(

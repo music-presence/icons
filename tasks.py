@@ -46,7 +46,7 @@ installer_graphics = {
         width=150,
         height=57,
     ),
-    # 1200x730, 144 = 72 * 2 DPI (required on Mac?)
+    # 1200x730, 144 = 72 * 2 DPI
     "installer-dmg": base.export(
         "installer",
         ["dmg", "dmg-box"],
@@ -55,6 +55,7 @@ installer_graphics = {
         dpi=144,
     ),
 }
+icns_convert_matching = ["^logo-app-circle", "^logo-app-mac"]
 ico_convert_matching = ["^logo-", "^tray-", "^symbol-"]
 bmp_convert_matching = ["nsis-wizard", "nsis-header"]
 
@@ -66,13 +67,19 @@ def icos(c: Context):
 
 
 @task
+def icns(c: Context):
+    for file in base.files_matching(base.OUT, icns_convert_matching):
+        base.to_icns(file, f"{base.OUT}/icns")
+
+
+@task
 def nsis_bmps(c: Context):
     for file in base.files_matching(base.OUT, bmp_convert_matching):
         # NSIS requires BMP3: https://stackoverflow.com/a/28768495/6748004
         base.to_nsis_bmp(file, f"{base.OUT}/bmp")
 
 
-@task(pre=[base.prepare], post=[icos])
+@task(pre=[base.prepare], post=[icos, icns])
 def export_logos(c: Context):
     with base.Inkscape(c) as inkscape:
         inkscape.export_all(base.svg("logo"), logos)
@@ -95,7 +102,7 @@ def export_installers(c: Context):
     base.change_dpi(res[key], installer_graphics[key].dpi)
 
 
-@task(pre=[base.prepare], post=[icos, nsis_bmps])
+@task(pre=[base.prepare], post=[icos, icns, nsis_bmps])
 def export(c: Context):
     export_logos(c)
     export_symbols(c)
