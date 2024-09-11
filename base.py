@@ -41,8 +41,24 @@ def svg(name):
     return f"{SRC}/{name}.svg"
 
 
-def ids(prefix: str, variant: str, suffixes: list[str] = []):
-    return export(f"{prefix}-{variant}", [*suffixes])
+class ExportInfo:
+    ids: str
+    width: int | None
+    height: int | None
+    dpi: int | None
+
+    def __init__(
+        self,
+        ids: str,
+        *,
+        width: int = None,
+        height: int = None,
+        dpi: int = None,
+    ):
+        self.ids = ids
+        self.width = width
+        self.height = height
+        self.dpi = dpi
 
 
 class Inkscape:
@@ -61,18 +77,31 @@ class Inkscape:
                 raise Exception(r.stderr)
 
     def export(
-        self, svg: str, name: str, export_ids: str, ext: str = "png"
+        self, svg: str, name: str, info: ExportInfo, ext: str = "png"
     ) -> str:
         path = out(name, ext)
-        command = f"inkscape -o {path} -i {export_ids} -j -h {SIZE} {svg}"
+        params = []
+        if info.width is not None:
+            params.append(f"-w {info.width}")
+        if info.height is not None:
+            params.append(f"-h {info.height}")
+        if info.width is None and info.height is None:
+            params = [f"-h {SIZE}"]
+        if info.dpi is not None:
+            params.append(f"-d {info.dpi}")
+        params = " ".join(params)
+        command = f"inkscape -o {path} -i {info.ids} -j {params} {svg}"
         promise: Promise = self.context.run(command, asynchronous=True)
         self.promises.append(promise)
         return path
 
-    def export_all(self, svg: str, name_to_ids: dict[str, str]) -> list[str]:
-        return [
-            self.export(svg, name, ids) for name, ids in name_to_ids.items()
-        ]
+    def export_all(
+        self, svg: str, name_to_ids: dict[str, str]
+    ) -> dict[str, str]:
+        return {
+            name: self.export(svg, name, ids)
+            for name, ids in name_to_ids.items()
+        }
 
 
 def to_ico(src, dir=None):
@@ -86,7 +115,21 @@ def to_ico(src, dir=None):
     image.save(dest)
 
 
-def export(base_id, suffixes):
+def to_nsis_bmp(src, dir=None):
+    path = pathlib.Path(src)
+    if dir is None:
+        dir = path.parent
+    dest = os.path.join(dir, path.stem + ".bmp")
+    print(f"converting: {src} -> {dest}")
+    image = Image.open(src)
+    image = image.convert("RGB")
+    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+    image.save(dest)
+
+
+def export(
+    base_id, suffixes, *, width: int = None, height: int = None, dpi: int = None
+):
     """Constructs a list of IDs meant to be passed to Inkscape's CLI program
     after the -i or --export-id command line flag.
     The last ID will dictate the bounding box of the output.
@@ -99,7 +142,21 @@ def export(base_id, suffixes):
         if len(s) == 0:
             raise ValueError("suffixes cannot be empty")
     ids = [base_id + "-" + s for s in suffixes]
-    return ";".join(ids)
+    return ExportInfo(";".join(ids), width=width, height=height, dpi=dpi)
+
+
+def ids(
+    prefix: str,
+    variant: str,
+    suffixes: list[str] = [],
+    *,
+    width: int = None,
+    height: int = None,
+    dpi: int = None,
+):
+    return export(
+        f"{prefix}-{variant}", [*suffixes], width=width, height=height, dpi=dpi
+    )
 
 
 def invert(image_path: str, replace: tuple[str, str]):
@@ -118,3 +175,8 @@ def invert(image_path: str, replace: tuple[str, str]):
         result = ImageOps.invert(image)
     new_name = basename.replace(replace[0], replace[1])
     result.save(os.path.join(dirname, new_name))
+
+
+def change_dpi(image_path: str, dpi: int):
+    image = Image.open(image_path)
+    image.save(image_path, dpi=(dpi, dpi))
