@@ -18,6 +18,9 @@ OUT = "dist"
 BUILD = "build"
 EXT = "png"
 
+# TODO separate icon and other image sizes
+# icns contain a 1024 variant which is upscaled here
+# tray icons and symbols do not have to be this large
 SIZE = 512
 
 

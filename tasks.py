@@ -7,7 +7,7 @@ import base
 icon = lambda v, s, m="tray-margin": base.ids("logo-icon", v, [*s, m])
 app = lambda v, s, m="margin": base.ids("logo-app", v, [*s, m])
 
-themed_logos = lambda theme: {
+themed_tray_icons = lambda theme: {
     f"tray-{theme}": icon(theme, ["shape"]),
     f"tray-{theme}-active": icon(theme, ["shape-active", "overlay-active"]),
     f"tray-{theme}-disabled": icon(theme, ["shape", "overlay-disabled"]),
@@ -17,8 +17,8 @@ themed_symbol = lambda theme, name: {
 }
 
 logos = {
-    **themed_logos("dark"),
-    **themed_logos("light"),
+    **themed_tray_icons("dark"),
+    **themed_tray_icons("light"),
     "logo-app-mac": app("mac", ["zinc", "shape-shade"]),
     "logo-app-circle": app("circle", ["zinc", "shape-shade"]),
     "logo-app-full": app("square", ["zinc", "shape"]),
