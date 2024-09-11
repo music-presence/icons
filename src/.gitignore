@@ -1,0 +1,4 @@
+# inkscape backup files
+*.svg.20*.svg
+# test exports
+*.png

@@ -6,18 +6,25 @@ import os
 import base
 
 
-def tray(theme: str, suffixes: list[str] = []):
-    return base.export(f"logo-icon-{theme}", [*suffixes, "tray-margin"])
+def ids(prefix: str, variant: str, suffixes: list[str] = []):
+    return base.export(f"{prefix}-{variant}", [*suffixes])
+
+
+icon = lambda v, s: ids("logo-icon", v, [*s, "tray-margin"])
+app = lambda v, s: ids("logo-app", v, [*s, "margin"])
 
 
 themed_logos = lambda theme: {
-    f"tray-{theme}": tray(theme, ["shape"]),
-    f"tray-{theme}-active": tray(theme, ["shape-active", "overlay-active"]),
-    f"tray-{theme}-disabled": tray(theme, ["shape", "overlay-disabled"]),
+    f"tray-{theme}": icon(theme, ["shape"]),
+    f"tray-{theme}-active": icon(theme, ["shape-active", "overlay-active"]),
+    f"tray-{theme}-disabled": icon(theme, ["shape", "overlay-disabled"]),
 }
 logos = {
     **themed_logos("dark"),
     **themed_logos("light"),
+    "logo-app-mac": app("mac", ["zinc", "shape"]),
+    "logo-app-circle": app("circle", ["zinc", "shape"]),
+    "logo-app-full": app("square", ["zinc", "shape"]),
 }
 
 
