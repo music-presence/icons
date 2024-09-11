@@ -1,9 +1,6 @@
 from invoke import task, Collection
 from invoke.context import Context
 
-import os
-import re
-
 import base
 
 
@@ -64,27 +61,15 @@ bmp_convert_matching = ["nsis-wizard", "nsis-header"]
 
 @task
 def icos(c: Context):
-    for dir, _, files in os.walk(base.OUT):
-        for file in files:
-            name, ext = os.path.splitext(file)
-            if not ext.lower().endswith(base.EXT.lower()):
-                continue
-            for pattern in ico_convert_matching:
-                if re.search(pattern, name):
-                    base.to_ico(os.path.join(dir, file), f"{base.OUT}/ico")
+    for file in base.files_matching(base.OUT, ico_convert_matching):
+        base.to_ico(file, f"{base.OUT}/ico")
 
 
 @task
 def nsis_bmps(c: Context):
-    # NSIS requires BMP3: https://stackoverflow.com/a/28768495/6748004
-    for dir, _, files in os.walk(base.OUT):
-        for file in files:
-            name, ext = os.path.splitext(file)
-            if not ext.lower().endswith(base.EXT.lower()):
-                continue
-            for pattern in bmp_convert_matching:
-                if re.search(pattern, name):
-                    base.to_nsis_bmp(os.path.join(dir, file), f"{base.OUT}/bmp")
+    for file in base.files_matching(base.OUT, bmp_convert_matching):
+        # NSIS requires BMP3: https://stackoverflow.com/a/28768495/6748004
+        base.to_nsis_bmp(file, f"{base.OUT}/bmp")
 
 
 @task(pre=[base.prepare], post=[icos])
@@ -110,7 +95,7 @@ def export_installers(c: Context):
     base.change_dpi(res[key], installer_graphics[key].dpi)
 
 
-@task(post=[icos, nsis_bmps])
+@task(pre=[base.prepare], post=[icos, nsis_bmps])
 def export(c: Context):
     export_logos(c)
     export_symbols(c)

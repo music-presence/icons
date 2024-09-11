@@ -5,8 +5,11 @@ from invoke.runners import Promise, Result
 import shutil
 import pathlib
 import os
+import re
+from typing import Callable
+from contextlib import contextmanager
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageFile, ImageOps
 
 
 # Inkscape CLI documentation: https://inkscape.org/doc/inkscape-man.html
@@ -104,27 +107,35 @@ class Inkscape:
         }
 
 
-def to_ico(src, dir=None):
-    path = pathlib.Path(src)
-    if dir is None:
-        dir = path.parent
-    dest = os.path.join(dir, path.stem + ".ico")
-    print(f"converting: {src} -> {dest}")
-    image = Image.open(src)
-    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
-    image.save(dest)
+@contextmanager
+def convert(
+    image_path,
+    target_directory,
+    ext,
+):
+    path = pathlib.Path(image_path)
+    dest = os.path.join(target_directory, f"{path.stem}.{ext}")
+    pathlib.Path(target_directory).mkdir(parents=True, exist_ok=True)
+
+    class Data:
+        def __init__(self, image: ImageFile.ImageFile):
+            self.image = image
+
+    print(f"converting: {image_path} -> {dest}")
+    image = Image.open(image_path)
+    info = Data(image)
+    yield info
+    info.image.save(dest)
 
 
-def to_nsis_bmp(src, dir=None):
-    path = pathlib.Path(src)
-    if dir is None:
-        dir = path.parent
-    dest = os.path.join(dir, path.stem + ".bmp")
-    print(f"converting: {src} -> {dest}")
-    image = Image.open(src)
-    image = image.convert("RGB")
-    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
-    image.save(dest)
+def to_ico(image_path, target_directory):
+    with convert(image_path, target_directory, "ico"):
+        pass
+
+
+def to_nsis_bmp(image_path, target_directory):
+    with convert(image_path, target_directory, "bmp") as out:
+        out.image = out.image.convert("RGB")
 
 
 def export(
@@ -180,3 +191,13 @@ def invert(image_path: str, replace: tuple[str, str]):
 def change_dpi(image_path: str, dpi: int):
     image = Image.open(image_path)
     image.save(image_path, dpi=(dpi, dpi))
+
+
+def files_matching(dir: str, patterns: list[str], ext: str = EXT):
+    for file in os.listdir(dir):
+        name, ext = os.path.splitext(file)
+        if not ext.lower().endswith(ext.lower()):
+            continue
+        for pattern in patterns:
+            if re.search(pattern, name):
+                yield os.path.join(dir, file)
