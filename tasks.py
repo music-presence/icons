@@ -10,8 +10,8 @@ def ids(prefix: str, variant: str, suffixes: list[str] = []):
     return base.export(f"{prefix}-{variant}", [*suffixes])
 
 
-icon = lambda v, s: ids("logo-icon", v, [*s, "tray-margin"])
-app = lambda v, s: ids("logo-app", v, [*s, "margin"])
+icon = lambda v, s, m="tray-margin": ids("logo-icon", v, [*s, m])
+app = lambda v, s, m="margin": ids("logo-app", v, [*s, m])
 
 
 themed_logos = lambda theme: {
@@ -22,9 +22,10 @@ themed_logos = lambda theme: {
 logos = {
     **themed_logos("dark"),
     **themed_logos("light"),
-    "logo-app-mac": app("mac", ["zinc", "shape"]),
-    "logo-app-circle": app("circle", ["zinc", "shape"]),
+    "logo-app-mac": app("mac", ["zinc", "shape-shade"]),
+    "logo-app-circle": app("circle", ["zinc", "shape-shade"]),
     "logo-app-full": app("square", ["zinc", "shape"]),
+    "logo-app-full-large": app("square", ["zinc", "shape"], "margin-large"),
 }
 
 
