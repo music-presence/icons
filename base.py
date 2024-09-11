@@ -6,7 +6,7 @@ import shutil
 import pathlib
 import os
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 
 # Inkscape CLI documentation: https://inkscape.org/doc/inkscape-man.html
@@ -37,6 +37,14 @@ def out(name, ext):
     return f"{OUT}/{name}.{ext}"
 
 
+def svg(name):
+    return f"{SRC}/{name}.svg"
+
+
+def ids(prefix: str, variant: str, suffixes: list[str] = []):
+    return export(f"{prefix}-{variant}", [*suffixes])
+
+
 class Inkscape:
     def __init__(self, context: Context):
         self.context = context
@@ -54,16 +62,17 @@ class Inkscape:
 
     def export(
         self, svg: str, name: str, export_ids: str, ext: str = "png"
-    ) -> Promise:
+    ) -> str:
         path = out(name, ext)
         command = f"inkscape -o {path} -i {export_ids} -j -h {SIZE} {svg}"
         promise: Promise = self.context.run(command, asynchronous=True)
         self.promises.append(promise)
-        return promise
+        return path
 
-    def export_all(self, svg: str, name_to_ids: dict[str, str]) -> None:
-        for name, ids in name_to_ids.items():
-            self.export(svg, name, ids)
+    def export_all(self, svg: str, name_to_ids: dict[str, str]) -> list[str]:
+        return [
+            self.export(svg, name, ids) for name, ids in name_to_ids.items()
+        ]
 
 
 def to_ico(src, dir=None):
@@ -91,3 +100,21 @@ def export(base_id, suffixes):
             raise ValueError("suffixes cannot be empty")
     ids = [base_id + "-" + s for s in suffixes]
     return ";".join(ids)
+
+
+def invert(image_path: str, replace: tuple[str, str]):
+    dirname = os.path.dirname(image_path)
+    basename = os.path.basename(image_path)
+    if not replace[0] in basename:
+        raise ValueError("replace string must be in image filename")
+    image = Image.open(image_path)
+    if image.mode == "RGBA":
+        r1, g1, b1, alpha = image.split()
+        rgb_image = Image.merge("RGB", (r1, g1, b1))
+        inverted_image = ImageOps.invert(rgb_image)
+        r2, g2, b2 = inverted_image.split()
+        result = Image.merge("RGBA", (r2, g2, b2, alpha))
+    else:
+        result = ImageOps.invert(image)
+    new_name = basename.replace(replace[0], replace[1])
+    result.save(os.path.join(dirname, new_name))
