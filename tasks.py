@@ -19,10 +19,10 @@ themed_symbol = lambda theme, name: {
 logos = {
     **themed_tray_icons("dark"),
     **themed_tray_icons("light"),
-    "logo-app-mac": app("mac", ["zinc", "shape-shade"]),
-    "logo-app-circle": app("circle", ["zinc", "shape-shade"]),
-    "logo-app-full": app("square", ["zinc", "shape"]),
-    "logo-app-full-large": app("square", ["zinc", "shape"], "margin-large"),
+    "logo-app-mac": app("mac", ["slate", "shape-shade"]),
+    "logo-app-circle": app("circle", ["slate", "shape-shade"]),
+    "logo-app-full": app("square", ["slate", "shape"]),
+    "logo-app-full-large": app("square", ["slate", "shape"], "margin-large"),
 }
 invertable_light_symbols = {
     **themed_symbol("light", "patreon"),
