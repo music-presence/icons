@@ -138,7 +138,12 @@ def to_nsis_bmp(image_path, target_directory):
 
 
 def export(
-    base_id, suffixes, *, width: int = None, height: int = None, dpi: int = None
+    base_id: str,
+    suffixes: list[str],
+    *,
+    width: int = None,
+    height: int = None,
+    dpi: int = None,
 ):
     """Constructs a list of IDs meant to be passed to Inkscape's CLI program
     after the -i or --export-id command line flag.

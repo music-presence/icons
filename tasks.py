@@ -27,6 +27,10 @@ logos = {
     "logo-app-full": app("square", ["slate", "shape"]),
     "logo-app-full-large": app("square", ["slate", "shape"], "margin-large"),
 }
+symbols = {
+    "symbol-status-playing": base.export("status", ["playing"]),
+    "symbol-status-paused": base.export("status", ["paused"]),
+}
 invertable_light_symbols = {
     **themed_symbol("light", "patreon"),
     **themed_symbol("light", "blitz"),
@@ -91,6 +95,7 @@ def export_logos(c: Context):
 @task(pre=[base.prepare], post=[icos])
 def export_symbols(c: Context):
     with base.Inkscape(c) as inkscape:
+        inkscape.export_all(base.svg("symbols"), symbols)
         res = inkscape.export_all(base.svg("symbols"), invertable_light_symbols)
     for path in res.values():
         base.invert(path, ("light", "dark"))
