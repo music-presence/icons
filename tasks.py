@@ -10,6 +10,9 @@ app = lambda v, s, m="margin": base.ids("logo-app", v, [*s, m])
 themed_tray_icons = lambda theme: {
     f"tray-{theme}": icon(theme, ["shape"]),
     f"tray-{theme}-active": icon(theme, ["shape-active", "overlay-active"]),
+    f"tray-{theme}-active-paused": icon(
+        theme, ["shape-active", "overlay-active-paused"]
+    ),
     f"tray-{theme}-disabled": icon(theme, ["shape", "overlay-disabled"]),
 }
 themed_symbol = lambda theme, name: {
