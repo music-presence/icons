@@ -26,6 +26,7 @@ logos = {
     "logo-app-circle": app("circle", ["slate", "shape-shade"]),
     "logo-app-full": app("square", ["slate", "shape"]),
     "logo-app-full-large": app("square", ["slate", "shape"], "margin-large"),
+    "logo-discord-server": app("square", ["slate-gradient", "shape"], "margin"),
 }
 symbols = {
     "symbol-status-playing": base.export("status", ["playing"]),
