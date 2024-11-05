@@ -36,6 +36,7 @@ symbols = {
 }
 invertable_light_symbols = {
     **themed_symbol("light", "patreon"),
+    **themed_symbol("light", "donate"),
     **themed_symbol("light", "blitz"),
     **themed_symbol("light", "open"),
     **themed_symbol("light", "info"),
