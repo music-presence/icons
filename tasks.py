@@ -41,6 +41,8 @@ invertable_light_symbols = {
     **themed_symbol("light", "open"),
     **themed_symbol("light", "info"),
     **themed_symbol("light", "close"),
+    **themed_symbol("light", "settings"),
+    **themed_symbol("light", "language"),
 }
 installer_graphics = {
     # https://nsis.sourceforge.io/Docs/Modern%20UI/Readme.html#toggle_inwf
