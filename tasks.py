@@ -33,6 +33,7 @@ logos = {
 symbols = {
     "symbol-status-playing": base.export("status", ["playing"]),
     "symbol-status-paused": base.export("status", ["paused"]),
+    "symbol-status-music-note": base.export("status", ["music-note"]),
 }
 invertable_light_symbols = {
     **themed_symbol("light", "patreon"),
