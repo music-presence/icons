@@ -96,7 +96,11 @@ class Inkscape:
             params.append(f"-d {info.dpi}")
         params = " ".join(params)
         command = f"inkscape -o {path} -i {info.ids} -j {params} {svg}"
-        promise: Promise = self.context.run(command, asynchronous=True)
+        # Set SELF_CALL to a non-empty value to prevent crashes:
+        # https://gitlab.com/inkscape/inkscape/-/issues/4716
+        promise: Promise = self.context.run(
+            command, asynchronous=True, env={"SELF_CALL": "abc"}
+        )
         self.promises.append(promise)
         return path
 
