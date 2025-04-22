@@ -7,21 +7,25 @@ import base
 icon = lambda v, s, m="tray-margin": base.ids("logo-icon", v, [*s, m])
 app = lambda v, s, m="margin": base.ids("logo-app", v, [*s, m])
 
-themed_tray_icons = lambda theme: {
-    f"tray-{theme}": icon(theme, ["shape"]),
-    f"tray-{theme}-active": icon(theme, ["shape-active", "overlay-active"]),
-    f"tray-{theme}-active-paused": icon(
-        theme, ["shape-active", "overlay-active-paused"]
+themed_tray_icons = lambda display_name, internal_name: {
+    f"tray-{display_name}": icon(internal_name, ["shape"]),
+    f"tray-{display_name}-active": icon(
+        internal_name, ["shape-active", "overlay-active"]
     ),
-    f"tray-{theme}-disabled": icon(theme, ["shape", "overlay-disabled"]),
+    f"tray-{display_name}-active-paused": icon(
+        internal_name, ["shape-active", "overlay-active-paused"]
+    ),
+    f"tray-{display_name}-disabled": icon(
+        internal_name, ["shape", "overlay-disabled"]
+    ),
 }
 themed_symbol = lambda theme, name: {
     f"symbol-{theme}-{name}": base.export(f"symbol-light", [name])
 }
 
 logos = {
-    **themed_tray_icons("dark"),
-    **themed_tray_icons("light"),
+    **themed_tray_icons("dark", "dark-bordered"),
+    **themed_tray_icons("light", "light"),
     "logo-app-mac": app("mac", ["slate", "shape-shade"]),
     "logo-app-circle": app("circle", ["slate", "shape-shade"]),
     "logo-app-full": app("square", ["slate", "shape"]),
