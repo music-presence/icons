@@ -26,7 +26,7 @@ themed_symbol = lambda theme, name: {
 logos = {
     **themed_tray_icons("dark", "dark"),
     **themed_tray_icons("light", "light"),
-    "logo-app-mac": app("mac", ["slate", "shape-shade"]),
+    "logo-app-mac": app("mac", ["shadow", "slate", "shape-shade"]),
     "logo-app-circle": app("circle", ["slate", "shape-shade"]),
     "logo-app-full": app("square", ["slate", "shape"]),
     "logo-app-full-large": app("square", ["slate", "shape"], "margin-large"),
